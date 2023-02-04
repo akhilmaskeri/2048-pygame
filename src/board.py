@@ -5,7 +5,7 @@ class Board():
 
         self.row_size = row_size
         self.col_size = col_size
-        self.max_text_length = 1
+        self._max_text_length = 1
 
         self.board = [[0 for _ in range(col_size)] for _ in range(row_size)]
 
@@ -16,6 +16,13 @@ class Board():
             self.up(dry_run=True),
             self.down(dry_run=True)
         ])
+    
+    def _update_max_text_length(self, number):
+        self._max_text_length = max(
+            self._max_text_length, 
+            len(str(number))
+        )
+
 
     def generate(self):
 
@@ -51,6 +58,8 @@ class Board():
             if not dry_run:
                 self.board[row][ptr] *= 2
                 self.board[row][col] = 0
+                self._update_max_text_length(self.board[row][ptr])
+
             return ptr+1*operation, True
         
         if ptr+1*operation != col and 0 <= ptr+1*operation < self.col_size:
@@ -77,6 +86,8 @@ class Board():
             if not dry_run:
                 self.board[ptr][col] *= 2
                 self.board[row][col] = 0
+                self._update_max_text_length(self.board[row][ptr])
+
             return ptr+1*operation, True
 
         if ptr+1*operation != row and 0 <= ptr+1*operation < self.row_size:
@@ -126,17 +137,17 @@ class Board():
 
     
     def __repr__(self) -> str: 
+
         result = []
-        result.append("-"*20)
+        
         for i in range(self.row_size):
             row = []
             
             for j in range(self.col_size):
                 x = self.board[i][j]
-                row.append(f"{ x if x > 0 else '_' : ^{self.max_text_length}}")
+                row.append(f"{ x if x > 0 else '_'*self._max_text_length : ^{self._max_text_length}}")
             
             result.append(" ".join(row))
-        result.append("-"*20)
         return "\n".join(result)
 
     @staticmethod
